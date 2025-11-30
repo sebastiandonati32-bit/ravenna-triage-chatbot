@@ -1,0 +1,30 @@
+{
+    "red_flags": [
+      {
+        "category": "Arresto Cardiocircolatorio",
+        "keywords": ["non respira", "arresto cardiaco", "incosciente", "privo di sensi", "non si sveglia", "rianimazione"],
+        "source_ref": "Manuale Triage Toscana/Lazio"
+      },
+      {
+        "category": "Dolore Toracico",
+        "keywords": ["dolore al petto", "dolore al torace", "peso sul petto", "infarto", "dolore braccio sinistro", "oppressione toracica", "sudore freddo"],
+        "source_ref": "Manuale Triage Toscana/Lazio"
+      },
+      {
+        "category": "Respiratorio Grave",
+        "keywords": ["soffoco", "fame d'aria", "dispnea grave", "diventato blu", "cianotico", "ostruzione gola"],
+        "source_ref": "Manuale Triage Toscana/Lazio"
+      },
+      {
+        "category": "Emorragie e Traumi",
+        "keywords": ["sangue a getto", "emorragia", "vomita sangue", "amputazione", "osso fuori", "coltellata", "sparatoria", "precipitato"],
+        "source_ref": "Manuale Triage Toscana/Lazio"
+      },
+      {
+        "category": "Neurologico",
+        "keywords": ["bocca storta", "non riesce a parlare", "paralisi", "ictus", "convulsioni"],
+        "source_ref": "Manuale Triage Toscana/Lazio"
+      }
+    ],
+    "emergency_message": "⚠️ ATTENZIONE: SITUAZIONE DI EMERGENZA RILEVATA.\n\nIn base a quello che hai scritto, potresti essere in pericolo di vita.\n\nNON USARE QUESTA CHAT.\n\n1. Chiama subito il 118 o il 112.\n2. Recati al Pronto Soccorso più vicino."
+  }
