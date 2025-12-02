@@ -78,9 +78,20 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+# --- CONFIGURAZIONE DIRETTA DELLA CHIAVE ---
+# --- CONFIGURAZIONE CHIAVE (PRESA DAL FILE .ENV PER SICUREZZA) ---
 api_key = os.getenv("GOOGLE_API_KEY")
-if api_key:
+
+if not api_key:
+    print("⚠️ ATTENZIONE: Chiave API non trovata nel file .env")
+else:
     genai.configure(api_key=api_key)
+
+if not api_key:
+    print("❌ ERRORE: Manca la chiave API nel codice!")
+else:
+    genai.configure(api_key=api_key)
+    print("✅ Chiave API configurata con successo.")
 
 class ChatRequest(BaseModel):
     message: str
@@ -100,7 +111,7 @@ async def chat_endpoint(request: ChatRequest):
     # FASE 2: CLINICA
     bot_response = ""
     try:
-        model = genai.GenerativeModel("gemini-1.5-pro")
+        model = genai.GenerativeModel("gemini-2.0-flash")
         prompt = f"Sei un infermiere di triage. Usa questo contesto: {CLINICAL_CONTEXT[:30000]}... Domanda: {request.message}"
         response = model.generate_content(prompt)
         bot_response = response.text
