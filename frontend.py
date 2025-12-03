@@ -113,7 +113,7 @@ if prompt := st.chat_input("Come ti senti?"):
     # FASE 2: CLINICA (Se non è emergenza)
     if not is_emergency and api_key:
         try:
-            model = genai.GenerativeModel("gemini-1.5-flash")
+            model = genai.GenerativeModel("gemini-2.5-flash")
             
             # Costruiamo la memoria
             current_history = st.session_state.history_text + f"\nUTENTE: {prompt}"
