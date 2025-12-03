@@ -1,0 +1,15 @@
+{
+  "triage_protocol": {
+    "general_rules": [
+      "Non fare diagnosi mediche.",
+      "Usa un linguaggio semplice.",
+      "Fai domande chiuse o a scelta multipla."
+    ],
+    "specific_scenarios": {
+      "dolore_toracico": ["Il dolore si irradia al braccio?", "Senti il cuore irregolare?", "Hai difficoltà a respirare?"],
+      "dolore_addominale": ["Dove fa male (alto/basso)?", "Hai nausea/vomito?", "L'addome è duro?"],
+      "trauma": ["Hai battuto la testa?", "Hai perso conoscenza?", "Prendi anticoagulanti?"],
+      "febbre": ["Quanto è alta?", "Hai rigidità al collo?", "Sei rientrato dall'estero?"]
+    }
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "ecosistema_sanitario_regionale": {
+    "sedi": [
+      {
+        "citta": "Bologna",
+        "nome": "CAU Navile",
+        "indirizzo": "Via C.D. Svampa, 8",
+        "orari": "08:00 - 24:00",
+        "tipo": "CAU",
+        "link_monitoraggio": "https://www.ausl.bologna.it/per-i-cittadini/pronto-soccorso/monitoraggio-ps"
+      },
+      {
+        "citta": "Bologna",
+        "nome": "Ospedale Maggiore",
+        "indirizzo": "Largo Bartolo Nigrisoli, 2",
+        "orari": "H24",
+        "tipo": "PS",
+        "link_monitoraggio": "https://www.ausl.bologna.it/per-i-cittadini/pronto-soccorso/monitoraggio-ps"
+      },
+      {
+        "citta": "Ferrara",
+        "nome": "Cittadella San Rocco (CAU)",
+        "indirizzo": "Corso Giovecca, 203",
+        "orari": "08:00 - 24:00",
+        "tipo": "CAU",
+        "link_monitoraggio": "https://www.ausl.fe.it/"
+      },
+      {
+        "citta": "Cona",
+        "nome": "Ospedale Sant'Anna (Cona)",
+        "indirizzo": "Via Aldo Moro, 8",
+        "orari": "H24",
+        "tipo": "PS",
+        "link_monitoraggio": "https://www.ospfe.it/"
+      },
+      {
+        "citta": "Modena",
+        "nome": "Policlinico di Modena",
+        "indirizzo": "Via del Pozzo, 71",
+        "orari": "H24",
+        "tipo": "PS",
+        "link_monitoraggio": "https://www.ausl.mo.it/monitoraggio-ps"
+      },
+      {
+        "citta": "Parma",
+        "nome": "Ospedale Maggiore",
+        "indirizzo": "Via Abbeveratoia, 2",
+        "orari": "H24",
+        "tipo": "PS",
+        "link_monitoraggio": "https://www.ao.pr.it/"
+      },
+      {
+        "citta": "Piacenza",
+        "nome": "Ospedale Guglielmo da Saliceto",
+        "indirizzo": "Cantone del Cristo, 40",
+        "orari": "H24",
+        "tipo": "PS",
+        "link_monitoraggio": "https://www.ausl.pc.it/"
+      },
+      {
+        "citta": "Reggio Emilia",
+        "nome": "Arcispedale S. Maria Nuova",
+        "indirizzo": "Viale Risorgimento, 80",
+        "orari": "H24",
+        "tipo": "PS",
+        "link_monitoraggio": "https://www.ausl.re.it/"
+      },
+      {
+        "citta": "Rimini",
+        "nome": "CAU Rimini",
+        "indirizzo": "Via Ovidio",
+        "orari": "08:00 - 20:00",
+        "tipo": "CAU",
+        "link_monitoraggio": "https://www.auslromagna.it/luoghi/pronto-soccorso/tempi-di-attesa"
+      },
+      {
+        "citta": "Rimini",
+        "nome": "Ospedale Infermi",
+        "indirizzo": "Via Settembrini, 2",
+        "orari": "H24",
+        "tipo": "PS",
+        "link_monitoraggio": "https://www.auslromagna.it/luoghi/pronto-soccorso/tempi-di-attesa"
+      },
+      {
+        "citta": "Forlì",
+        "nome": "Ospedale Morgagni-Pierantoni",
+        "indirizzo": "Via Carlo Forlanini, 34",
+        "orari": "H24",
+        "tipo": "PS",
+        "link_monitoraggio": "https://www.auslromagna.it/luoghi/pronto-soccorso/tempi-di-attesa"
+      },
+      {
+        "citta": "Cesena",
+        "nome": "Ospedale Bufalini",
+        "indirizzo": "Viale Ghirotti, 286",
+        "orari": "H24",
+        "tipo": "PS",
+        "link_monitoraggio": "https://www.auslromagna.it/luoghi/pronto-soccorso/tempi-di-attesa"
+      },
+      {
+        "citta": "Ravenna",
+        "nome": "CAU Ravenna CMP",
+        "indirizzo": "Via Fiume Abbandonato, 134",
+        "orari": "08:00 - 20:00",
+        "tipo": "CAU",
+        "link_monitoraggio": "https://www.auslromagna.it/luoghi/pronto-soccorso/tempi-di-attesa"
+      },
+      {
+        "citta": "Ravenna",
+        "nome": "Ospedale S. Maria delle Croci",
+        "indirizzo": "Viale Randi, 5",
+        "orari": "H24",
+        "tipo": "PS",
+        "link_monitoraggio": "https://www.auslromagna.it/luoghi/pronto-soccorso/tempi-di-attesa"
+      }
+    ]
+  }
+}
