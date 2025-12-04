@@ -62,7 +62,6 @@ KB = load_knowledge_base()
 # --- 3. GESTIONE CHAT ---
 if "messages" not in st.session_state:
     st.session_state.messages = []
-# history_text serve a dare contesto all'AI, ma non deve essere visibile all'utente
 if "history_text" not in st.session_state:
     st.session_state.history_text = ""
 
@@ -101,36 +100,43 @@ if prompt := st.chat_input("Come ti senti? / How do you feel?"):
         try:
             model = genai.GenerativeModel("gemini-2.5-flash")
             
-            # Costruiamo la memoria
-            # Importante: Non mandiamo tutto history_text grezzo che può confondere
-            # Mandiamo gli ultimi messaggi strutturati
             conversation_history = ""
             for msg in st.session_state.messages:
                 conversation_history += f"{msg['role'].upper()}: {msg['content']}\n"
 
-            # --- MODIFICA PROMPT: Logica Domande Step-by-Step ---
+            # --- SYSTEM PROMPT PERFEZIONATO ---
             system_prompt = f"""
-            Sei un infermiere di triage esperto dell'AUSL Romagna.
+            Sei un infermiere di triage digitale dell'AUSL Romagna.
             
-            CONTESTO CONVERSAZIONE:
+            CONTESTO:
             {conversation_history}
             
-            ### ISTRUZIONI LINGUA:
-            1. Se l'utente scrive in INGLESE, rispondi in INGLESE.
-            2. Se l'utente scrive in ITALIANO, rispondi in ITALIANO.
-            
-            ### IL TUO COMPITO:
-            Devi fare un triage rapido per capire se inviare l'utente al CAU (Codice Bianco/Verde) o al Pronto Soccorso (Codice Giallo/Rosso).
-            
-            ### REGOLE DI INTERAZIONE (IMPORTANTE):
-            1. **UNA DOMANDA ALLA VOLTA**: Non fare elenchi A, B, C. Fai solo la domanda più importante successiva.
-            2. **NON RIPETERE**: Se l'utente ha già detto che il dolore si irradia al braccio, non chiederlo di nuovo.
-            3. **ANALISI RAPIDA**: Se l'utente conferma un sintomo grave (es. dolore al petto che si irradia al braccio), smetti di fare domande e consiglia SUBITO il Pronto Soccorso.
-            4. **CITTÀ**: Se non sai la città, chiedila subito, ma se l'utente ha sintomi gravi (dolore toracico), dai priorità alla sicurezza clinica.
+            ### REGOLE LINGUA:
+            - Se l'utente scrive in INGLESE -> Rispondi in INGLESE.
+            - Se l'utente scrive in ITALIANO -> Rispondi in ITALIANO.
 
-            ### DATI DI RIFERIMENTO:
+            ### PROCEDURA OPERATIVA (RIGIDA):
+            
+            1. **STEP 0: LA CITTÀ È FONDAMENTALE.**
+               - Se non sai IN CHE CITTÀ si trova l'utente, DEVI chiederlo.
+               - Eccezione: Chiedilo anche se ha dolore al petto. Dobbiamo sapere dove mandarlo (quale Ospedale).
+               - Frase suggerita: "Per indicarti la struttura corretta, in quale città ti trovi?"
+            
+            2. **STEP 1: VALUTAZIONE SINTOMI (Risposta Chiusa Pulita)**
+               - Se conosci la città, fai domande cliniche per capire la gravità.
+               - **FORMATO OBBLIGATORIO** (usa gli 'a capo'):
+                 [Domanda chiara?]
+                 A) [Opzione 1]
+                 B) [Opzione 2]
+                 C) [Opzione 3]
+               - NON mettere le opzioni sulla stessa riga della domanda.
+            
+            3. **STEP 2: CONCLUSIONE**
+               - Se l'utente seleziona sintomi gravi (dolore irradiato, svenimento, sangue), INTERROMPI le domande e mandalo al Pronto Soccorso della sua città.
+               - Se l'utente ha sintomi lievi, continua o manda al CAU.
+
+            ### DATI:
             {KB['protocol']}
-            {KB['context'][:15000]}
             """
             
             response = model.generate_content(system_prompt)
@@ -141,37 +147,34 @@ if prompt := st.chat_input("Come ti senti? / How do you feel?"):
 
     # FASE 3: LOGISTICA
     if not is_emergency:
-        keywords_conclusione = ["indicato", "consiglio", "recati", "vai al", "più opportuno", "recommend", "go to", "suggest", "urgently"]
+        keywords_conclusione = ["indicato", "consiglio", "recati", "vai al", "più opportuno", "recommend", "go to", "suggest", "urgently", "emergency room", "pronto soccorso"]
         triage_concluso = any(word in bot_reply.lower() for word in keywords_conclusione)
-        domanda_esplicita = "dove" in user_msg or "indirizzo" in user_msg or "where" in user_msg or "address" in user_msg
+        
+        # Cerchiamo la città
+        sedi = KB["sedi"]["ecosistema_sanitario_regionale"].get("sedi", []) if "ecosistema_sanitario_regionale" in KB["sedi"] else []
+        citta_utente = None
+        nomi_citta_disponibili = set(s.get("citta", "").lower() for s in sedi)
+        
+        for msg in reversed(st.session_state.messages):
+            if msg["role"] == "user":
+                for city in nomi_citta_disponibili:
+                    if city in msg["content"].lower():
+                        citta_utente = city
+                        break
+            if citta_utente: break
+        
+        # Se il triage è concluso (abbiamo dato un consiglio) E abbiamo trovato la città -> Mostra le card
+        if triage_concluso and citta_utente:
+            sedi_citta = [s for s in sedi if s.get("citta", "").lower() == citta_utente]
+            consiglia_cau = "cau" in bot_reply.lower() and "pronto soccorso" not in bot_reply.lower()
+            sedi_citta.sort(key=lambda x: x.get("tipo") == "CAU", reverse=consiglia_cau)
 
-        # Mostra le sedi SOLO se il triage è concluso o l'utente chiede dove andare
-        if (triage_concluso or domanda_esplicita) and "ecosistema_sanitario_regionale" in KB["sedi"]:
-            sedi = KB["sedi"]["ecosistema_sanitario_regionale"].get("sedi", [])
-            citta_utente = None
-            
-            # Cerca la città negli ultimi messaggi dell'utente
-            nomi_citta_disponibili = set(s.get("citta", "").lower() for s in sedi)
-            for msg in reversed(st.session_state.messages):
-                if msg["role"] == "user":
-                    for city in nomi_citta_disponibili:
-                        if city in msg["content"].lower():
-                            citta_utente = city
-                            break
-                if citta_utente: break
-            
-            if citta_utente:
-                sedi_citta = [s for s in sedi if s.get("citta", "").lower() == citta_utente]
-                # Se l'AI suggerisce PS (o urgente), mettiamo PS in cima
-                consiglia_cau = "cau" in bot_reply.lower() and "pronto soccorso" not in bot_reply.lower()
-                sedi_citta.sort(key=lambda x: x.get("tipo") == "CAU", reverse=consiglia_cau)
-
-                bot_reply += f"\n\n📍 **STRUTTURE A / FACILITIES IN {citta_utente.upper()}:**"
-                for sede in sedi_citta:
-                    icona = "🟢" if "CAU" in sede.get("tipo") else "🏥"
-                    evidenza = " **(✓)**" if (consiglia_cau and "CAU" in sede.get("tipo")) or (not consiglia_cau and "PS" in sede.get("tipo")) else ""
-                    link_mon = f" | 🔗 [Monitoraggio/Status]({sede['link_monitoraggio']})" if sede.get("link_monitoraggio") else ""
-                    bot_reply += f"\n\n{icona} **{sede['nome']}**{evidenza}\nIndirizzo: {sede['indirizzo']}\nOrari: {sede.get('orari')}{link_mon}"
+            bot_reply += f"\n\n📍 **STRUTTURE A / FACILITIES IN {citta_utente.upper()}:**"
+            for sede in sedi_citta:
+                icona = "🟢" if "CAU" in sede.get("tipo") else "🏥"
+                evidenza = " **(✓)**" if (consiglia_cau and "CAU" in sede.get("tipo")) or (not consiglia_cau and "PS" in sede.get("tipo")) else ""
+                link_mon = f" | 🔗 [Monitoraggio/Status]({sede['link_monitoraggio']})" if sede.get("link_monitoraggio") else ""
+                bot_reply += f"\n\n{icona} **{sede['nome']}**{evidenza}\nIndirizzo: {sede['indirizzo']}\nOrari: {sede.get('orari')}{link_mon}"
         
     with st.chat_message("assistant"):
         st.markdown(bot_reply)
