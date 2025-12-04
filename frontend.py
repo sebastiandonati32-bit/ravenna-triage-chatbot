@@ -171,4 +171,9 @@ if prompt := st.chat_input("Scrivi qui / Type here..."):
             for sede in sedi_citta:
                 icona = "🟢" if "CAU" in sede.get("tipo") else "🏥"
                 link_mon = f" | 🔗 [Monitoraggio]({sede['link_monitoraggio']})" if sede.get("link_monitoraggio") else ""
-                bot_reply += f"\n\n{icona} **{sede['nome']}**\nIndirizzo: {sede['indirizzo']}\nOrari: {sede.get('orari')}{link_mon
+                bot_reply += f"\n\n{icona} **{sede['nome']}**\nIndirizzo: {sede['indirizzo']}\nOrari: {sede.get('orari')}{link_mon}"
+        
+    # Mostra risposta AI
+    with st.chat_message("assistant"):
+        st.markdown(bot_reply)
+    st.session_state.messages.append({"role": "assistant", "content": bot_reply})
