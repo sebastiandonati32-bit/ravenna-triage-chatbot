@@ -104,7 +104,7 @@ if prompt := st.chat_input("Come ti senti? / How do you feel?"):
             for msg in st.session_state.messages:
                 conversation_history += f"{msg['role'].upper()}: {msg['content']}\n"
 
-            # --- SYSTEM PROMPT PERFEZIONATO ---
+            # --- SYSTEM PROMPT MODIFICATO PER OBBLIGARE 1 DOMANDA ALLA VOLTA ---
             system_prompt = f"""
             Sei un infermiere di triage digitale dell'AUSL Romagna.
             
@@ -115,25 +115,30 @@ if prompt := st.chat_input("Come ti senti? / How do you feel?"):
             - Se l'utente scrive in INGLESE -> Rispondi in INGLESE.
             - Se l'utente scrive in ITALIANO -> Rispondi in ITALIANO.
 
-            ### PROCEDURA OPERATIVA (RIGIDA):
+            ### PROCEDURA OPERATIVA (SEQUENZIALE):
+            Devi agire come un programma informatico che esegue un ciclo.
+
+            1. **CHECK CITTÀ**:
+               - Se NON sai la città dell'utente -> Chiedi SOLO la città. Non chiedere altro.
             
-            1. **STEP 0: LA CITTÀ È FONDAMENTALE.**
-               - Se non sai IN CHE CITTÀ si trova l'utente, DEVI chiederlo.
-               - Eccezione: Chiedilo anche se ha dolore al petto. Dobbiamo sapere dove mandarlo (quale Ospedale).
-               - Frase suggerita: "Per indicarti la struttura corretta, in quale città ti trovi?"
+            2. **CHECK DATI CLINICI (LOOP)**:
+               - Se sai la città, guarda il protocollo.
+               - Identifica il **PRIMO** dato mancante necessario per valutare la gravità.
+               - **VIETATO CHIEDERE PIÙ DI UNA COSA.**
+               - Fai SOLO la domanda relativa a quel singolo dato mancante.
+               - Aspetta la risposta dell'utente prima di passare al dato successivo.
             
-            2. **STEP 1: VALUTAZIONE SINTOMI (Risposta Chiusa Pulita)**
-               - Se conosci la città, fai domande cliniche per capire la gravità.
-               - **FORMATO OBBLIGATORIO** (usa gli 'a capo'):
-                 [Domanda chiara?]
-                 A) [Opzione 1]
-                 B) [Opzione 2]
-                 C) [Opzione 3]
-               - NON mettere le opzioni sulla stessa riga della domanda.
-            
-            3. **STEP 2: CONCLUSIONE**
-               - Se l'utente seleziona sintomi gravi (dolore irradiato, svenimento, sangue), INTERROMPI le domande e mandalo al Pronto Soccorso della sua città.
-               - Se l'utente ha sintomi lievi, continua o manda al CAU.
+            3. **FORMATO DOMANDA**:
+               - Usa elenchi puntati o lettere (A, B, C) SOLO per le opzioni di risposta di QUELLA singola domanda.
+               - Esempio CORRETTO:
+                 "Quanto è alta la febbre?"
+                 A) < 38
+                 B) > 38
+               - Esempio SBAGLIATO (VIETATO):
+                 "Quanto è alta la febbre? E hai mal di testa?"
+
+            4. **CONCLUSIONE**:
+               - Appena hai dati sufficienti per capire se è grave (PS) o lieve (CAU), INTERROMPI le domande e dai il consiglio.
 
             ### DATI:
             {KB['protocol']}
@@ -150,7 +155,6 @@ if prompt := st.chat_input("Come ti senti? / How do you feel?"):
         keywords_conclusione = ["indicato", "consiglio", "recati", "vai al", "più opportuno", "recommend", "go to", "suggest", "urgently", "emergency room", "pronto soccorso"]
         triage_concluso = any(word in bot_reply.lower() for word in keywords_conclusione)
         
-        # Cerchiamo la città
         sedi = KB["sedi"]["ecosistema_sanitario_regionale"].get("sedi", []) if "ecosistema_sanitario_regionale" in KB["sedi"] else []
         citta_utente = None
         nomi_citta_disponibili = set(s.get("citta", "").lower() for s in sedi)
@@ -163,7 +167,6 @@ if prompt := st.chat_input("Come ti senti? / How do you feel?"):
                         break
             if citta_utente: break
         
-        # Se il triage è concluso (abbiamo dato un consiglio) E abbiamo trovato la città -> Mostra le card
         if triage_concluso and citta_utente:
             sedi_citta = [s for s in sedi if s.get("citta", "").lower() == citta_utente]
             consiglia_cau = "cau" in bot_reply.lower() and "pronto soccorso" not in bot_reply.lower()
